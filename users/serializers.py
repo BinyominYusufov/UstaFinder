@@ -19,5 +19,25 @@ class RegisterSerializer(serializers.ModelSerializer):
             role='USER'
         )
         return user
+    
+    
+    # Проверка номера телефона
+    def validate_phone(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Номер телефона должен содержать только цифры.")
+        if len(value) != 9:
+            raise serializers.ValidationError("Номер телефона должен быть длиной 9 цифр.")
+        if User.objects.filter(phone=value).exists():
+            raise serializers.ValidationError("Пользователь с таким номером уже существует.")
+        return value
+
+    # Создание пользователя
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            phone_number=validated_data['phone_number'],
+            password=validated_data['password']
+        )
+        return user
 
 
